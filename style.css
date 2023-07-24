@@ -1,0 +1,32 @@
+body {
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans',
+        'Droid Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #778af1;
+    margin    : 0;
+    padding   : 0;
+    box-sizing: border-box;
+
+}
+
+.container {
+    /* display: flex; */
+}
+
+.chart-box {
+    border: 1px solid #ccc;
+    width : 400px;
+    height: 400px;
+}
+
+.content-box {
+    display: flex;
+    border : 1px solid #ccc;
+}
+
+.box-item {
+    display        : flex;
+    justify-content: space-around;
+    width          : 150px;
+    margin         : 10px;
+    padding        : 5px;
+}

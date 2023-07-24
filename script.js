@@ -8,12 +8,24 @@ const initialData = [
   { name: 'rent', cost: 40 },
 ];
 
-// return new array based on the initialData array, with the percentage, initialValue, and previous element value properties added
+const lightColorsArray = [
+  '#b2e061',
+  '#ffee65',
+  '#beb9db',
+  '#fd7f6f',
+  '#bd7ebe',
+  '#ffb55a',
+  '#fdcce5',
+  '#8bd3c7',
+];
+
+// return new array based on the initialData array, with proper data for the drag function
 const tempDragArray = initialData.map((element, idx, arr) => {
   if (idx === 0) {
     return {
       id: element.name,
       percentage: element.cost,
+      color: lightColorsArray[idx],
       initialValue: element.cost,
       previousElementValue: arr[arr.length - 1].cost,
       percentagePoint: 0,
@@ -22,6 +34,7 @@ const tempDragArray = initialData.map((element, idx, arr) => {
     return {
       id: element.name,
       percentage: element.cost,
+      color: lightColorsArray[idx],
       initialValue: element.cost,
       previousElementValue: arr[idx - 1].cost,
       // calculate the percentagePoint by adding on each iteration all the previous costs
@@ -31,7 +44,6 @@ const tempDragArray = initialData.map((element, idx, arr) => {
     };
   }
 });
-console.log('tempDragArray', tempDragArray);
 
 // return new array based on the tempDragArray array, with the from and to properties added
 const draggableElements = tempDragArray.map((element, idx, arr) => {
@@ -56,3 +68,21 @@ const draggableElements = tempDragArray.map((element, idx, arr) => {
   }
 });
 console.log('draggableElements', draggableElements);
+
+// build the content box
+const contentBox = document.querySelector('.content-box');
+let content = '';
+
+draggableElements.forEach((element) => {
+  content += `
+  <div class="box-item" style="background:${element.color}">
+    <h2 class="box-title">${element.id}</h2>
+    <h2 id="box-value-${element.id}" class="box-value">${element.percentage}</h2>
+  </div>
+  `;
+});
+
+contentBox.innerHTML += content;
+
+// get all the value boxes
+const allValueBoxes = document.querySelectorAll('.box-value');
