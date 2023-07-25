@@ -28,7 +28,7 @@ const tempDragArray = initialData.map((element, idx, arr) => {
       color: lightColorsArray[idx],
       initialValue: element.cost,
       previousElementValue: arr[arr.length - 1].cost,
-      percentagePoint: 0,
+      percentagePoint: 10,
     };
   } else {
     return {
@@ -39,7 +39,7 @@ const tempDragArray = initialData.map((element, idx, arr) => {
       previousElementValue: arr[idx - 1].cost,
       // calculate the percentagePoint by adding on each iteration all the previous costs
       percentagePoint: arr
-        .slice(0, idx)
+        .slice(0, idx + 1)
         .reduce((acc, curr) => acc + curr.cost, 0),
     };
   }
@@ -83,7 +83,6 @@ draggableElements.forEach((element) => {
 });
 
 contentBox.innerHTML += content;
-
 // get all the value boxes
 const allValueBoxes = document.querySelectorAll('.box-value');
 
@@ -138,24 +137,56 @@ function drag(event, d) {
 
   const x = center.x + dimensions.radius * Math.cos(angle);
   const y = center.y + dimensions.radius * Math.sin(angle);
-
-  // normalize the angle to be between 0 and 2*PI
-  if (angle < 0) {
-    angle += 2 * Math.PI;
+  // calculate the percentage, starting from the top, from 0% to 100%
+  let percentage = 100 * +(angle + Math.PI / 2) / (2 * Math.PI);
+  // normalize the negative percentage values
+  if (percentage < 0) {
+    percentage += 100;
   }
+  let draggedPercent = +percentage.toFixed(2);
+  console.log('draggedPercent', draggedPercent);
 
-  const percentage = Number((angle / (2 * Math.PI)) * 100);
-  // // calc new percentage based on the angle starting from the top of the circle, and not from the right side
-  // const percentage = Number(((angle - Math.PI / 2) / (2 * Math.PI)) * 100);
-  // //calc new percentage based on the angle starting from the top of the circle, and top of the circle is 0
-  // const percentage = Number(((angle + Math.PI / 2) / (2 * Math.PI)) * 100);
-
-  console.log('percentage', percentage);
+  // allow the draggable element to be dragged only in the allowed area
+  draggableElements.forEach((circle, idx) => {
+    if (circle.id === d.id) {
+      console.log('d', d);
+      // ?=================== FIRST ONLY DRAGGABLE CIRCLE =====================//
+      if (idx === 0) {
+        // define draggable element range (from and to)
+        if ((draggedPercent >= circle.from && draggedPercent <= 100) || (draggedPercent >= 0 && draggedPercent <= circle.to)) {
+          // update the position of the draggable circle
+          d3.select(this).attr('cx', x).attr('cy', y);
+        }
+      }
+      // ?=================== LAST ONLY DRAGGABLE CIRCLE ======================//
+      else if (idx === draggableElements.length - 1) {
+        // define draggable element range (from and to)
+        if (draggedPercent >= circle.from || draggedPercent <= circle.to) {
+          // update the position of the draggable circle
+          d3.select(this).attr('cx', x).attr('cy', y);
+        }
+      }
+      // ?=================== REST OF THE DRAGGABLE CIRCLES ===================//
+      else {
+        // define draggable element range (from and to)
+        if (draggedPercent >= circle.from && draggedPercent <= circle.to) {
+          // update the position of the draggable circle
+          d3.select(this).attr('cx', x).attr('cy', y);
+        }
+      }
+    }
+  });
 
   // update the position of the draggable element
-  d3.select(this).attr('cx', x).attr('cy', y);
+  // d3.select(this).attr('cx', x).attr('cy', y);
   // console.log('draggableElements', draggableElements);
 }
+
+const dragEnd = (event, d) => {
+  console.log('draggableElements', draggableElements);
+};
+
+
 
 // start appending the draggable circles
 let startAngle = 100 / Math.PI - 89.95;
@@ -168,7 +199,7 @@ const smallCircles = pieSvg //outerCircleSvg
     id: (d) => d.id,
     percentage: (d) => d.percentage,
     class: 'draggableElement',
-    r: 10,
+    r: 8,
   })
   .attrs((d) => {
     startAngle += (d.percentage / 100) * 2 * Math.PI;
@@ -177,5 +208,5 @@ const smallCircles = pieSvg //outerCircleSvg
       cy: center.y + dimensions.radius * Math.sin(startAngle),
     };
   })
-  .styles({ fill: 'grey', cursor: 'grab' })
-  .call(d3.drag().on('drag', drag));
+
+  .call(d3.drag().on('drag', drag).on('end', dragEnd));

@@ -10,13 +10,15 @@ body {
 
 #pie-svg {}
 
-.arc:hover {
-    /* fill: #f00; */
+.draggableElement {
+    fill           : #fff;
+    cursor         : grab;
+    /* stroke      : #fff; */
+    stroke-width   : 3px;
 }
 
-#outer-circle-svg {
-    position   : absolute;
-    /* left    : 0; */
+.arc:hover {
+    /* fill: #f00; */
 }
 
 .container {
