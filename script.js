@@ -86,3 +86,96 @@ contentBox.innerHTML += content;
 
 // get all the value boxes
 const allValueBoxes = document.querySelectorAll('.box-value');
+
+// ===================== PIE CHART ===================== //
+const pieSvg = d3
+  .select('.chart-box')
+  .append('svg')
+  .attrs({ id: 'pie-svg', width: dimensions.width, height: dimensions.height });
+
+// create a group for the pie chart
+const graph = pieSvg
+  .append('g')
+  .attr('transform', `translate(${center.x}, ${center.y})`);
+
+const pie = d3
+  .pie()
+  .sort(null)
+  .value((d) => d.percentage);
+
+const arcPath = d3
+  .arc()
+  .outerRadius(dimensions.radius)
+  .innerRadius(dimensions.radius / 2);
+
+// join the pie data to path elements
+const paths = graph.selectAll('path').data(pie(draggableElements));
+paths.attr('d', arcPath);
+
+// event handlers
+const handleMouseOver = (e) => {
+  // d3.select(e.srcElement)
+  //   .transition('changeSliceFill') // name of the transition, for not to interfere with other transitions
+  //   .duration(300)
+  //   .attr('fill', '#e6e6e6');
+};
+
+paths
+  .enter()
+  .append('path')
+  .attr('class', 'arc')
+  .attr('d', arcPath)
+  .attr('stroke', '#fff')
+  .attr('stroke-width', 3)
+  .attr('fill', (d) => d.data.color)
+  .on('mouseover', handleMouseOver);
+
+function drag(event, d) {
+  // calculate the new position of the draggable element based on the mouse coordinates
+  const newX = event.x - center.x;
+  const newY = event.y - center.y;
+  let angle = Math.atan2(newY, newX);
+
+  const x = center.x + dimensions.radius * Math.cos(angle);
+  const y = center.y + dimensions.radius * Math.sin(angle);
+
+  // normalize the angle to be between 0 and 2*PI
+  if (angle < 0) {
+    angle += 2 * Math.PI;
+  }
+
+  const percentage = Number((angle / (2 * Math.PI)) * 100);
+  // // calc new percentage based on the angle starting from the top of the circle, and not from the right side
+  // const percentage = Number(((angle - Math.PI / 2) / (2 * Math.PI)) * 100);
+  // //calc new percentage based on the angle starting from the top of the circle, and top of the circle is 0
+  // const percentage = Number(((angle + Math.PI / 2) / (2 * Math.PI)) * 100);
+
+  console.log('percentage', percentage);
+
+  // update the position of the draggable element
+  d3.select(this).attr('cx', x).attr('cy', y);
+  // console.log('draggableElements', draggableElements);
+}
+
+// start appending the draggable circles
+let startAngle = 100 / Math.PI - 89.95;
+const smallCircles = pieSvg //outerCircleSvg
+  .selectAll('.draggableElement')
+  .data(draggableElements)
+  .enter()
+  .append('circle')
+  .attrs({
+    id: (d) => d.id,
+    percentage: (d) => d.percentage,
+    class: 'draggableElement',
+    r: 10,
+  })
+  .attrs((d) => {
+    startAngle += (d.percentage / 100) * 2 * Math.PI;
+    return {
+      cx: center.x + dimensions.radius * Math.cos(startAngle),
+      cy: center.y + dimensions.radius * Math.sin(startAngle),
+    };
+  })
+  .styles({ fill: 'grey', cursor: 'grab' })
+  .call(d3.drag().on('drag', drag));
