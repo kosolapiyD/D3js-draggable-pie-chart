@@ -11,10 +11,8 @@ body {
 #pie-svg {}
 
 .draggableElement {
-    fill           : #fff;
-    cursor         : grab;
-    /* stroke      : #fff; */
-    stroke-width   : 3px;
+    fill  : #fff;
+    cursor: grab;
 }
 
 .arc:hover {
