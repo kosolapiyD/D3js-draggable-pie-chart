@@ -111,6 +111,12 @@ const arcPath = d3
 const paths = graph.selectAll('path').data(pie(draggableElements));
 paths.attr('d', arcPath);
 
+const redrawPie = (data) => {
+  // join the pie data to path elements
+  const paths = graph.selectAll('path').data(pie(data));
+  paths.attr('d', arcPath);
+};
+
 // event handlers
 const handleMouseOver = (e) => {
   // d3.select(e.srcElement)
@@ -143,8 +149,8 @@ function drag(event, d) {
   if (percentage < 0) {
     percentage += 100;
   }
-  let draggedPercent = +percentage.toFixed(2);
-  console.log('draggedPercent', draggedPercent);
+  // let draggedPercent = +percentage.toFixed(2);
+  // console.log('draggedPercent', draggedPercent);
 
   // allow the draggable element to be dragged only in the allowed area
   draggableElements.forEach((circle, idx) => {
@@ -152,19 +158,20 @@ function drag(event, d) {
       // ?=================== FIRST ONLY DRAGGABLE CIRCLE =====================//
       if (idx === 0) {
         // define draggable element range (from and to)
-        if ((draggedPercent >= circle.from && draggedPercent <= 100) || (draggedPercent >= 0 && draggedPercent <= circle.to)) {
+        if ((percentage >= circle.from && percentage <= 100) || (percentage >= 0 && percentage <= circle.to)) {
           // update the position of the draggable circle
           d3.select(this).attr('cx', x).attr('cy', y);
-          let difference = draggedPercent - circle.percentagePoint;
-          console.log('difference', difference);
-          // update the percentage of the draggable circle
-          const updatedPercentage = (circle.initialValue + difference).toFixed();
+          let difference = percentage - circle.percentagePoint;
+
+          const updatedPercentage = (circle.initialValue + difference).toFixed(9);
           circle.percentage = updatedPercentage;
-          allValueBoxes[idx].innerHTML = updatedPercentage;
-          // update the percentage of the next element
-          const updatedNextPercentage = ((difference - draggableElements[idx + 1].initialValue) * -1).toFixed();
+
+          const updatedNextPercentage = ((difference - draggableElements[idx + 1].initialValue) * -1).toFixed(9);
           draggableElements[idx + 1].percentage = updatedNextPercentage;
-          allValueBoxes[idx + 1].innerHTML = updatedNextPercentage;
+          // update the value boxes
+          allValueBoxes[idx].innerHTML = updatedPercentage.split('.')[0];
+          allValueBoxes[idx + 1].innerHTML = updatedNextPercentage.split('.')[0];
+          redrawPie(draggableElements);
         }
       }
       // ?=================== LAST ONLY DRAGGABLE CIRCLE ======================//
