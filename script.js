@@ -144,7 +144,7 @@ function drag(event, d) {
   const x = center.x + dimensions.radius * Math.cos(angle);
   const y = center.y + dimensions.radius * Math.sin(angle);
   // calculate the percentage, starting from the top, from 0% to 100%
-  let percentage = 100 * +(angle + Math.PI / 2) / (2 * Math.PI);
+  let percentage = (100 * +(angle + Math.PI / 2)) / (2 * Math.PI);
   // normalize the negative percentage values
   if (percentage < 0) {
     percentage += 100;
@@ -158,19 +158,25 @@ function drag(event, d) {
       // ?=================== FIRST ONLY DRAGGABLE CIRCLE =====================//
       if (idx === 0) {
         // define draggable element range (from and to)
-        if ((percentage >= circle.from && percentage <= 100) || (percentage >= 0 && percentage <= circle.to)) {
+        if (
+          (percentage >= circle.from && percentage <= 100) ||
+          (percentage >= 0 && percentage <= circle.to)
+        ) {
           // update the position of the draggable circle
           d3.select(this).attr('cx', x).attr('cy', y);
           let difference = percentage - circle.percentagePoint;
 
-          const updatedPercentage = (circle.initialValue + difference).toFixed(9);
+          const updatedPercentage = +(circle.initialValue + difference);
           circle.percentage = updatedPercentage;
 
-          const updatedNextPercentage = ((difference - draggableElements[idx + 1].initialValue) * -1).toFixed(9);
+          const updatedNextPercentage = +(
+            (difference - draggableElements[idx + 1].initialValue) *
+            -1
+          );
           draggableElements[idx + 1].percentage = updatedNextPercentage;
           // update the value boxes
-          allValueBoxes[idx].innerHTML = updatedPercentage.split('.')[0];
-          allValueBoxes[idx + 1].innerHTML = updatedNextPercentage.split('.')[0];
+          allValueBoxes[idx].innerHTML = updatedPercentage.toFixed();
+          allValueBoxes[idx + 1].innerHTML = updatedNextPercentage.toFixed();
           redrawPie(draggableElements);
         }
       }
@@ -197,8 +203,6 @@ function drag(event, d) {
 const dragEnd = (event, d) => {
   console.log('draggableElements', draggableElements);
 };
-
-
 
 // start appending the draggable circles
 let startAngle = 100 / Math.PI - 89.95;
