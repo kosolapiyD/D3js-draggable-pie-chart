@@ -149,13 +149,22 @@ function drag(event, d) {
   // allow the draggable element to be dragged only in the allowed area
   draggableElements.forEach((circle, idx) => {
     if (circle.id === d.id) {
-      console.log('d', d);
       // ?=================== FIRST ONLY DRAGGABLE CIRCLE =====================//
       if (idx === 0) {
         // define draggable element range (from and to)
         if ((draggedPercent >= circle.from && draggedPercent <= 100) || (draggedPercent >= 0 && draggedPercent <= circle.to)) {
           // update the position of the draggable circle
           d3.select(this).attr('cx', x).attr('cy', y);
+          let difference = draggedPercent - circle.percentagePoint;
+          console.log('difference', difference);
+          // update the percentage of the draggable circle
+          const updatedPercentage = (circle.initialValue + difference).toFixed();
+          circle.percentage = updatedPercentage;
+          allValueBoxes[idx].innerHTML = updatedPercentage;
+          // update the percentage of the next element
+          const updatedNextPercentage = ((difference - draggableElements[idx + 1].initialValue) * -1).toFixed();
+          draggableElements[idx + 1].percentage = updatedNextPercentage;
+          allValueBoxes[idx + 1].innerHTML = updatedNextPercentage;
         }
       }
       // ?=================== LAST ONLY DRAGGABLE CIRCLE ======================//
@@ -176,10 +185,6 @@ function drag(event, d) {
       }
     }
   });
-
-  // update the position of the draggable element
-  // d3.select(this).attr('cx', x).attr('cy', y);
-  // console.log('draggableElements', draggableElements);
 }
 
 const dragEnd = (event, d) => {
