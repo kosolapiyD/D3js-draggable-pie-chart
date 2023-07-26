@@ -44,6 +44,7 @@ const tempDragArray = initialData.map((element, idx, arr) => {
   }
 });
 
+// return new array based on the tempDragArray array, with the from and to properties added
 const calcFromTo = (arr) => {
   const fromToArr = arr.map((element, idx, arr) => {
     if (idx === 0) {
@@ -70,26 +71,5 @@ const calcFromTo = (arr) => {
 };
 
 const draggableElements = calcFromTo(tempDragArray);
-// return new array based on the tempDragArray array, with the from and to properties added
-// const draggableElements = tempDragArray.map((element, idx, arr) => {
-//   if (idx === 0) {
-//     return {
-//       ...element,
-//       from: arr[arr.length - 1].percentagePoint,
-//       to: arr[idx + 1].percentagePoint,
-//     };
-//   } else if (idx === arr.length - 1) {
-//     return {
-//       ...element,
-//       from: arr[idx - 1].percentagePoint,
-//       to: arr[0].percentagePoint,
-//     };
-//   } else {
-//     return {
-//       ...element,
-//       from: arr[idx - 1].percentagePoint,
-//       to: arr[idx + 1].percentagePoint,
-//     };
-//   }
-// });
-// console.log('draggableElements', draggableElements);
+
+console.log('draggableElements', draggableElements);

@@ -39,13 +39,14 @@ const pie = d3
 const arcPath = d3
   .arc()
   .outerRadius(dimensions.radius)
-  .innerRadius(dimensions.radius / 2);
+  .innerRadius(dimensions.radius / 4);
 
 // join the pie data to path elements
 const paths = graph.selectAll('path').data(pie(draggableElements));
 paths.attr('d', arcPath);
 
 const redrawPie = (data) => {
+  console.log('redrawPie data', data);
   // join the pie data to path elements
   const paths = graph.selectAll('path').data(pie(data));
   paths.attr('d', arcPath);
@@ -78,12 +79,12 @@ function drag(event, d) {
   const x = center.x + dimensions.radius * Math.cos(angle);
   const y = center.y + dimensions.radius * Math.sin(angle);
   // calculate the percentage, starting from the top, from 0% to 100%
-  let percentage = (100 * +(angle + Math.PI / 2)) / (2 * Math.PI);
+  globalPercentage = (100 * +(angle + Math.PI / 2)) / (2 * Math.PI);
   // normalize the negative percentage values
-  if (percentage < 0) {
-    percentage += 100;
+  if (globalPercentage < 0) {
+    globalPercentage += 100;
   }
-  console.log('percentage', percentage);
+  console.log('globalPercentage', globalPercentage);
   // allow the draggable element to be dragged only in the allowed area
   draggableElements.forEach((circle, idx) => {
     if (circle.id === d.id) {
@@ -91,12 +92,12 @@ function drag(event, d) {
       if (idx === 0) {
         // define draggable element range (from and to)
         if (
-          (percentage >= circle.from && percentage <= 100) ||
-          (percentage >= 0 && percentage <= circle.to)
+          (globalPercentage >= circle.from && globalPercentage <= 100) ||
+          (globalPercentage >= 0 && globalPercentage <= circle.to)
         ) {
           // update the position of the draggable circle
           d3.select(this).attr('cx', x).attr('cy', y);
-          const difference = percentage - circle.percentagePoint;
+          const difference = globalPercentage - circle.percentagePoint;
 
           const updatedPercentage = +(circle.initialValue + difference);
           circle.percentage = updatedPercentage;
@@ -115,10 +116,10 @@ function drag(event, d) {
       // ?=================== LAST ONLY DRAGGABLE CIRCLE ======================//
       else if (idx === draggableElements.length - 1) {
         // define draggable element range (from and to)
-        if (percentage >= circle.from || percentage <= circle.to) {
+        if (globalPercentage >= circle.from || globalPercentage <= circle.to) {
           // update the position of the draggable circle
           d3.select(this).attr('cx', x).attr('cy', y);
-          const difference = (percentage - circle.percentagePoint) * -1;
+          const difference = (globalPercentage - circle.percentagePoint) * -1;
 
           const updatedPercentage =
             difference < circle.initialValue
@@ -137,7 +138,7 @@ function drag(event, d) {
           allValueBoxes[idx].innerHTML = updatedPercentage.toFixed();
           allValueBoxes[0].innerHTML = updatedNextPercentage.toFixed();
 
-          // pie starting angle is always 0 by default (12 o'clock position), 
+          // pie starting angle is always 0 by default (12 o'clock position),
           // so in this case we need to calculate the new angle
           const newPieAngle = difference / 50;
           draggableElements[0].startAngle = -newPieAngle;
@@ -149,10 +150,10 @@ function drag(event, d) {
       // ?=================== REST OF THE DRAGGABLE CIRCLES ===================//
       else {
         // define draggable element range (from and to)
-        if (percentage >= circle.from && percentage <= circle.to) {
+        if (globalPercentage >= circle.from && globalPercentage <= circle.to) {
           // update the position of the draggable circle
           d3.select(this).attr('cx', x).attr('cy', y);
-          const difference = percentage - circle.percentagePoint;
+          const difference = globalPercentage - circle.percentagePoint;
           console.log('difference', difference);
           const updatedPercentage = +(circle.initialValue + difference);
           circle.percentage = updatedPercentage;
@@ -173,49 +174,44 @@ function drag(event, d) {
 }
 
 const dragEnd = (event, d) => {
-  console.log('s angle', draggableElements[0].startAngle);
-  console.log('e angle', draggableElements[0].endAngle);
+  console.log('d', d);
+  d.percentagePoint = +globalPercentage.toFixed();
 
   draggableElements.forEach((circle, idx) => {
     if (circle.id === d.id) {
       // ?=================== FIRST ONLY DRAGGED CIRCLE =====================//
       if (idx === 0) {
-        console.log("first");
+        console.log('dragEnd first circle =======>', d.id);
       }
       // ?=================== LAST ONLY DRAGGED CIRCLE ======================//
       else if (idx === draggableElements.length - 1) {
-        console.log("last circle", circle);
-        // update pie start, end position
-        draggableElements[0].startAngle = draggableElements[0].startAngle;
-        draggableElements[0].endAngle = draggableElements[0].endAngle;
-        const newPercentPoint = (circle.percentage - circle.percentagePoint) * -1;
-        circle.percentagePoint = +newPercentPoint.toFixed();
-        circle.initialValue = +circle.percentage.toFixed();
+        console.log('dragEnd last circle =======>', circle);
+        // circle.percentagePoint = +circle.percentage.toFixed();
+        // circle.initialValue = +circle.percentage.toFixed();
       }
       // ?=================== REST OF THE DRAGGED CIRCLES ===================//
       else {
-        console.log("rest");
+        console.log('dragEnd rest circle =======>', d.id);
       }
     }
   });
 
   const newDraggableElements = calcFromTo(draggableElements);
   console.log('newDraggableElements', newDraggableElements);
-  redrawPie(newDraggableElements);
+  // redrawPie(newDraggableElements);
 };
 
-// start appending the draggable circles
+// start appending the draggable circles from the top
 let startAngle = 100 / Math.PI - 89.95;
-// let startAngle = 0; //angleData;
-const smallCircles = pieSvg //outerCircleSvg
-  .selectAll('.draggableElement')
+const smallCircles = pieSvg
+  .selectAll('.draggable-element')
   .data(draggableElements)
   .enter()
   .append('circle')
   .attrs({
     id: (d) => d.id,
     percentage: (d) => d.percentage,
-    class: 'draggableElement',
+    class: 'draggable-element',
     r: 8,
   })
   .attrs((d) => {

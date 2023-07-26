@@ -10,7 +10,7 @@ body {
 
 #pie-svg {}
 
-.draggableElement {
+.draggable-element {
     fill  : #fff;
     cursor: grab;
 }
