@@ -1,3 +1,10 @@
+// const angleData = [
+//   { name: 'bills', cost: 10 },
+//   { name: 'food', cost: 20 },
+//   { name: 'car', cost: 20 },
+//   { name: 'rent', cost: 50 },
+// ];
+
 const initialData = [
   { name: 'bills', cost: 10 },
   { name: 'food', cost: 20 },
