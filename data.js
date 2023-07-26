@@ -27,6 +27,8 @@ const lightColorsArray = [
 const tempDragArray = initialData.map((element, idx, arr) => {
   if (idx === 0) {
     return {
+      startAngle: 0,
+      endAngle: 2,
       id: element.name,
       percentage: element.cost,
       color: lightColorsArray[idx],

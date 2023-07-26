@@ -31,16 +31,8 @@ const graph = pieSvg
 
 const pie = d3
   .pie()
-  // start the chart 0.01 degree to the left
-  // .startAngle(-0.1 * Math.PI) approximately 5%
-  //  start the chart 1% to the left
-  // ======================= angleData
-  // .startAngle(0.5 * Math.PI)
-  // .endAngle(2.5 * Math.PI)
-  // ======================= 1%
-  .startAngle(0.015 * Math.PI)
-  .endAngle(2.015 * Math.PI)
-  // =======================
+  .startAngle((d) => d[0].startAngle * Math.PI)
+  .endAngle((d) => d[0].endAngle * Math.PI)
   .sort(null)
   .value((d) => d.percentage);
 
@@ -91,7 +83,7 @@ function drag(event, d) {
   if (percentage < 0) {
     percentage += 100;
   }
-  // console.log('percentage', percentage);
+  console.log('percentage', percentage);
   // allow the draggable element to be dragged only in the allowed area
   draggableElements.forEach((circle, idx) => {
     if (circle.id === d.id) {
@@ -127,7 +119,7 @@ function drag(event, d) {
           // update the position of the draggable circle
           d3.select(this).attr('cx', x).attr('cy', y);
           const difference = (percentage - circle.percentagePoint) * -1;
-          console.log('difference', difference);
+
           const updatedPercentage =
             difference < circle.initialValue
               ? circle.initialValue - difference
@@ -138,14 +130,20 @@ function drag(event, d) {
             difference < circle.initialValue
               ? difference + draggableElements[0].initialValue
               : draggableElements[0].initialValue - (100 - difference);
-          console.log('updatedNextPercentage', updatedNextPercentage);
+          ;
           draggableElements[0].percentage = updatedNextPercentage;
 
           // update the value boxes
           allValueBoxes[idx].innerHTML = updatedPercentage.toFixed();
           allValueBoxes[0].innerHTML = updatedNextPercentage.toFixed();
 
-          // redrawPie(draggableElements);
+          // pie starting angle is always 0 by default (12 o'clock position), 
+          // so in this case we need to calculate the new angle
+          const newPieAngle = difference / 50;
+          draggableElements[0].startAngle = -newPieAngle;
+          draggableElements[0].endAngle = -newPieAngle + 2;
+
+          redrawPie(draggableElements);
         }
       }
       // ?=================== REST OF THE DRAGGABLE CIRCLES ===================//
@@ -166,7 +164,7 @@ const dragEnd = (event, d) => {
 
 // start appending the draggable circles
 let startAngle = 100 / Math.PI - 89.95;
-// let startAngle = 0; angleData
+// let startAngle = 0; //angleData;
 const smallCircles = pieSvg //outerCircleSvg
   .selectAll('.draggableElement')
   .data(draggableElements)
