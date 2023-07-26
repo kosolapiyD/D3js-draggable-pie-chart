@@ -1,10 +1,3 @@
-// const angleData = [
-//   { name: 'bills', cost: 10 },
-//   { name: 'food', cost: 20 },
-//   { name: 'car', cost: 20 },
-//   { name: 'rent', cost: 50 },
-// ];
-
 const initialData = [
   { name: 'bills', cost: 10 },
   { name: 'food', cost: 20 },
@@ -51,26 +44,52 @@ const tempDragArray = initialData.map((element, idx, arr) => {
   }
 });
 
+const calcFromTo = (arr) => {
+  const fromToArr = arr.map((element, idx, arr) => {
+    if (idx === 0) {
+      return {
+        ...element,
+        from: arr[arr.length - 1].percentagePoint,
+        to: arr[idx + 1].percentagePoint,
+      };
+    } else if (idx === arr.length - 1) {
+      return {
+        ...element,
+        from: arr[idx - 1].percentagePoint,
+        to: arr[0].percentagePoint,
+      };
+    } else {
+      return {
+        ...element,
+        from: arr[idx - 1].percentagePoint,
+        to: arr[idx + 1].percentagePoint,
+      };
+    }
+  });
+  return fromToArr;
+};
+
+const draggableElements = calcFromTo(tempDragArray);
 // return new array based on the tempDragArray array, with the from and to properties added
-const draggableElements = tempDragArray.map((element, idx, arr) => {
-  if (idx === 0) {
-    return {
-      ...element,
-      from: arr[arr.length - 1].percentagePoint,
-      to: arr[idx + 1].percentagePoint,
-    };
-  } else if (idx === arr.length - 1) {
-    return {
-      ...element,
-      from: arr[idx - 1].percentagePoint,
-      to: arr[0].percentagePoint,
-    };
-  } else {
-    return {
-      ...element,
-      from: arr[idx - 1].percentagePoint,
-      to: arr[idx + 1].percentagePoint,
-    };
-  }
-});
-console.log('draggableElements', draggableElements);
+// const draggableElements = tempDragArray.map((element, idx, arr) => {
+//   if (idx === 0) {
+//     return {
+//       ...element,
+//       from: arr[arr.length - 1].percentagePoint,
+//       to: arr[idx + 1].percentagePoint,
+//     };
+//   } else if (idx === arr.length - 1) {
+//     return {
+//       ...element,
+//       from: arr[idx - 1].percentagePoint,
+//       to: arr[0].percentagePoint,
+//     };
+//   } else {
+//     return {
+//       ...element,
+//       from: arr[idx - 1].percentagePoint,
+//       to: arr[idx + 1].percentagePoint,
+//     };
+//   }
+// });
+// console.log('draggableElements', draggableElements);
