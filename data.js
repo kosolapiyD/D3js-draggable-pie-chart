@@ -1,8 +1,16 @@
+// const initialData = [
+//   { name: 'bills', cost: 10 },
+//   { name: 'food', cost: 20 },
+//   { name: 'car', cost: 30 },
+//   { name: 'rent', cost: 40 },
+// ];
+
 const initialData = [
   { name: 'bills', cost: 10 },
   { name: 'food', cost: 20 },
   { name: 'car', cost: 30 },
-  { name: 'rent', cost: 40 },
+  { name: 'rent', cost: 25 },
+  { name: 'drink', cost: 15 },
 ];
 
 const lightColorsArray = [
@@ -28,6 +36,7 @@ const tempDragArray = initialData.map((element, idx, arr) => {
       previousElementValue: arr[arr.length - 1].cost,
       nextElementValue: arr[idx + 1].cost,
       percentagePoint: element.cost,
+      percentageStopPoint: 0,
       // startAngle: 0,
       // endAngle: 2,
     };
@@ -45,6 +54,7 @@ const tempDragArray = initialData.map((element, idx, arr) => {
       percentagePoint: arr
         .slice(0, idx + 1)
         .reduce((acc, curr) => acc + curr.cost, 0),
+      percentageStopPoint: 0,
       startAngle: idx === arr.length - 1 && 0,
       endAngle: idx === arr.length - 1 && 2,
     };

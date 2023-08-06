@@ -84,7 +84,8 @@ function drag(event, d) {
     tempDiff += 99.99;
   }
 
-  console.log('tempDiff', tempDiff);
+  // console.log('tempDiff', tempDiff);
+
   // the actual difference calculation from the current point (0 => 99.99, or 0 => -99.99)
   let difference;
   if (d.from < d.to) {
@@ -123,9 +124,39 @@ function drag(event, d) {
     }
   }
 
-  console.log('difference', difference);
+  // console.log('difference', difference);
 
-  const isWithinTheRange = () => {
+  const isWithinTheRangeToOne = () => {
+    // allow the draggable circle to be dragged within the from - to range
+    if (d.from > d.to) {
+      if (
+        ascendingGlobalPercentage >= d.from + 1 &&
+        ascendingGlobalPercentage <= 99
+      ) {
+        // update the position of the draggable circle
+        d3.select(this).attr('cx', x).attr('cy', y);
+        return true;
+      }
+      if (
+        ascendingGlobalPercentage >= 1 &&
+        ascendingGlobalPercentage <= d.to - 1
+      ) {
+        // update the position of the draggable circle
+        d3.select(this).attr('cx', x).attr('cy', y);
+        return true;
+      }
+    } else {
+      if (
+        ascendingGlobalPercentage >= d.from + 1 &&
+        ascendingGlobalPercentage <= d.to - 1
+      ) {
+        d3.select(this).attr('cx', x).attr('cy', y);
+        return true;
+      }
+    }
+  };
+
+  const isWithinTheRangeToZero = () => {
     // allow the draggable circle to be dragged within the from - to range
     if (d.from > d.to) {
       if (
@@ -155,9 +186,9 @@ function drag(event, d) {
   // allow the draggable element to be dragged only in the allowed area
   draggableElements.forEach((circle, idx) => {
     if (circle.id === d.id) {
-      // ?=================== FIRST ONLY DRAGGABLE CIRCLE =====================//
+      // *=================== FIRST ONLY DRAGGABLE CIRCLE =====================//
       if (idx === 0) {
-        if (isWithinTheRange()) {
+        if (isWithinTheRangeToOne()) {
           const updatedPercentage = circle.initialValue + difference;
           circle.percentage = updatedPercentage;
           const updatedNextPercentage =
@@ -165,12 +196,14 @@ function drag(event, d) {
           draggableElements[1].percentage = updatedNextPercentage;
           allValueBoxes[idx].innerHTML = updatedPercentage.toFixed();
           allValueBoxes[1].innerHTML = updatedNextPercentage.toFixed();
+          // update the percentage stopping point
+          circle.percentageStopPoint = ascendingGlobalPercentage;
           redrawPie(draggableElements);
         }
       }
-      // ?=================== LAST ONLY DRAGGABLE CIRCLE ======================//
+      // *=================== LAST ONLY DRAGGABLE CIRCLE ======================//
       else if (idx === draggableElements.length - 1) {
-        if (isWithinTheRange()) {
+        if (isWithinTheRangeToOne()) {
           const updatedPercentage = circle.initialValue + difference;
           circle.percentage = updatedPercentage;
           const updatedNextPercentage =
@@ -185,12 +218,14 @@ function drag(event, d) {
           const reNewAngle = d.startAngle + newAngle;
           circle.startAngle = firstRun ? newAngle : reNewAngle;
           circle.endAngle = firstRun ? newAngle + 2 : reNewAngle + 2;
+          // update the percentage stopping point
+          circle.percentageStopPoint = ascendingGlobalPercentage;
           redrawPie(draggableElements);
         }
       }
-      // ?=================== REST OF THE DRAGGABLE CIRCLES ===================//
+      // *=================== REST OF THE DRAGGABLE CIRCLES ===================//
       else {
-        if (isWithinTheRange()) {
+        if (isWithinTheRangeToOne()) {
           const updatedPercentage = circle.initialValue + difference;
           circle.percentage = updatedPercentage;
           const updatedNextPercentage =
@@ -199,6 +234,8 @@ function drag(event, d) {
           // update the value boxes
           allValueBoxes[idx].innerHTML = updatedPercentage.toFixed();
           allValueBoxes[idx + 1].innerHTML = updatedNextPercentage.toFixed();
+          // update the percentage stopping point
+          circle.percentageStopPoint = ascendingGlobalPercentage;
           redrawPie(draggableElements);
         }
       }
@@ -212,33 +249,32 @@ function dragEnd(event, d) {
     (circle) => circle.id === d.id
   );
 
-  d.percentagePoint = ascendingGlobalPercentage;
-  d.initialValue = +ascendingGlobalPercentage.toFixed(2);
+  // d.percentagePoint = ascendingGlobalPercentage;
+  // d.initialValue = +ascendingGlobalPercentage.toFixed(2);
 
   draggableElements.forEach((circle, idx) => {
     if (circle.id === d.id) {
-      // ?=================== FIRST ONLY DRAGGED CIRCLE =====================//
+      // *=================== FIRST ONLY DRAGGED CIRCLE =====================//
       if (idx === 0) {
-        circle.percentagePoint = ascendingGlobalPercentage;
+        circle.percentagePoint = circle.percentageStopPoint;
         circle.initialValue = +circle.percentage.toFixed(2);
         // update next circle data
         draggableElements[1].initialValue =
           +draggableElements[1].percentage.toFixed(2);
       }
-      // ?=================== LAST ONLY DRAGGED CIRCLE ======================//
+      // *=================== LAST ONLY DRAGGED CIRCLE ======================//
       else if (idx === draggableElements.length - 1) {
-        circle.percentagePoint = ascendingGlobalPercentage;
+        circle.percentagePoint = circle.percentageStopPoint;
         circle.initialValue = +circle.percentage.toFixed(2);
         // update next circle data
         draggableElements[0].initialValue =
           +draggableElements[0].percentage.toFixed(2);
       }
-      // ?=================== REST OF THE DRAGGED CIRCLES ===================//
+      // *=================== REST OF THE DRAGGED CIRCLES ===================//
       else {
         // console.log('dragEnd rest circle =======>', d.id);
-        circle.percentagePoint = ascendingGlobalPercentage;
+        circle.percentagePoint = circle.percentageStopPoint;
         circle.initialValue = +circle.percentage.toFixed(2);
-
         // update next circle data
         draggableElements[draggedIdx + 1].initialValue =
           +draggableElements[draggedIdx + 1].percentage.toFixed(2);
@@ -264,7 +300,7 @@ const drawCircles = (data) => {
       id: (d) => d.id,
       percentage: (d) => d.percentage,
       class: 'draggable-element',
-      r: 8,
+      r: 10,
     })
     .attrs((d) => {
       startAngle += (d.percentage / 100) * 2 * Math.PI;
