@@ -16,12 +16,12 @@ const initialData = [
 const lightColorsArray = [
   '#b2e061',
   '#ffee65',
-  '#beb9db',
+  '#8bd3c7',
   '#fd7f6f',
   '#bd7ebe',
   '#ffb55a',
   '#fdcce5',
-  '#8bd3c7',
+  '#beb9db',
 ];
 
 // return new array based on the initialData array, with proper data for the drag function

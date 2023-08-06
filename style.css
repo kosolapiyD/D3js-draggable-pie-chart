@@ -8,7 +8,14 @@ body {
 
 }
 
-#pie-svg {}
+h2 {
+    margin: 5px;
+}
+
+#pie-svg {
+    -webkit-filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.5));
+    filter        : drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.5));
+}
 
 .draggable-element {
     fill        : #fff;
@@ -22,24 +29,33 @@ body {
 }
 
 .container {
-    /* display: flex; */
+    display: flex;
+    border : 1px solid #ccc;
 }
 
 .chart-box {
-    border: 1px solid #ccc;
     width : 400px;
     height: 400px;
 }
 
 .content-box {
-    display: flex;
-    border : 1px solid #ccc;
+    display        : flex;
+    flex-direction : column;
+    justify-content: center;
 }
 
 .box-item {
     display        : flex;
-    justify-content: space-around;
+    justify-content: space-between;
     width          : 150px;
-    margin         : 10px;
-    padding        : 5px;
+    margin         : 5px;
+    padding-left   : 15px;
+    padding-right  : 5px;
+    border-radius  : 5px;
+    box-shadow     : rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
+
+.box-value::after {
+    content  : ' %';
+    font-size: 20px;
 }
