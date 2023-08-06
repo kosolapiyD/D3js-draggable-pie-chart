@@ -20,26 +20,33 @@ const lightColorsArray = [
 const tempDragArray = initialData.map((element, idx, arr) => {
   if (idx === 0) {
     return {
-      startAngle: 0,
-      endAngle: 2,
+      idx: idx,
       id: element.name,
       percentage: element.cost,
       color: lightColorsArray[idx],
       initialValue: element.cost,
       previousElementValue: arr[arr.length - 1].cost,
-      percentagePoint: 10,
+      nextElementValue: arr[idx + 1].cost,
+      percentagePoint: element.cost,
+      // startAngle: 0,
+      // endAngle: 2,
     };
   } else {
     return {
+      idx: idx,
       id: element.name,
       percentage: element.cost,
       color: lightColorsArray[idx],
       initialValue: element.cost,
       previousElementValue: arr[idx - 1].cost,
+      nextElementValue:
+        idx === arr.length - 1 ? arr[0].cost : arr[idx + 1].cost,
       // calculate the percentagePoint by adding on each iteration all the previous costs
       percentagePoint: arr
         .slice(0, idx + 1)
         .reduce((acc, curr) => acc + curr.cost, 0),
+      startAngle: idx === arr.length - 1 && 0,
+      endAngle: idx === arr.length - 1 && 2,
     };
   }
 });
@@ -50,20 +57,20 @@ const calcFromTo = (arr) => {
     if (idx === 0) {
       return {
         ...element,
-        from: arr[arr.length - 1].percentagePoint,
-        to: arr[idx + 1].percentagePoint,
+        from: +arr[arr.length - 1].percentagePoint.toFixed(2),
+        to: +arr[idx + 1].percentagePoint.toFixed(2),
       };
     } else if (idx === arr.length - 1) {
       return {
         ...element,
-        from: arr[idx - 1].percentagePoint,
-        to: arr[0].percentagePoint,
+        from: +arr[idx - 1].percentagePoint.toFixed(2),
+        to: +arr[0].percentagePoint.toFixed(),
       };
     } else {
       return {
         ...element,
-        from: arr[idx - 1].percentagePoint,
-        to: arr[idx + 1].percentagePoint,
+        from: +arr[idx - 1].percentagePoint.toFixed(2),
+        to: +arr[idx + 1].percentagePoint.toFixed(2),
       };
     }
   });
